@@ -1,4 +1,7 @@
 # LOCUTOR DE BINGO #
+![image](https://user-images.githubusercontent.com/79283111/161313399-d03c3ebe-b9d7-4e1e-a018-cab5fbb64300.png)
+
+
 
 La aplicación consiste en un locutor de bingo, es decir, es el encargado de cantar las bolas que van saliendo del bombo.
 La aplicación muestra en grande el número recien salido y en un tablero va marcando los que han salido.
