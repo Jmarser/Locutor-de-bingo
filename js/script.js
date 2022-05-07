@@ -14,6 +14,7 @@ window.addEventListener("load", () => {
     let revision; //Variable para el setInterval de cantar las bolas del tablero.
     let onOff = false; //variable para pausar el intervalo de cantar el bombo.
     let jugando = false; //variable para determinar si el juego ha empezado o no.
+    let revisando = false; //variable para determinar si estamos realizando una revisión
     let timerInterval;
 
     /* Función con la que reiniciamos los elementos necesarios para la partida */
@@ -83,7 +84,7 @@ window.addEventListener("load", () => {
     const revisarTablero = () => {
 
         //ordenamos los números del array
-        tablero.sort((a, b) => a-b);
+        tablero.sort((a, b) => a - b);
 
         if (indice <= tablero.length - 1) { //sacamos bolas del tablero mientra haya.
 
@@ -92,7 +93,9 @@ window.addEventListener("load", () => {
 
         } else {//ya no quedan bolas para revisar
             locutor("Terminada revisión");
+            revisando = false;
             clearInterval(revision);
+            pausarJuego();
         }
     };
 
@@ -121,7 +124,7 @@ window.addEventListener("load", () => {
         //obtenemos el tiempo indicado en el campo y lo multiplicamos para obtener milisegundos
         timerInterval = parseInt(document.getElementById("tiempo").value) * 1000; //intervalo que tardara en cantar las bolas.
 
-        if (!jugando) {
+        if (!jugando && !revisando) {
             jugando = true;
 
             //validamos que si no se ha metido ningún valor en el campo, por defecto tome el valor de 3segundos.
@@ -135,36 +138,43 @@ window.addEventListener("load", () => {
         }
     });
 
-    /*Pausamos la partida sin reiniciar ninguno de los valores */
-    pausar.addEventListener("click", () => {
-        
-        if (!onOff) {
-            locutor("estas en pausa");
-            clearInterval(partida);
-            pausar.textContent = "Continuar";
-        } else {
-            locutor("Reanudamos partida");
-            pausar.textContent = "Pausar";
-            partida = setInterval(sacarBolas, timerInterval);
+    /*Se pausa el juego pudiendo luego continuar por donde se había detenido. */
+    const pausarJuego = () => {
+        if (!revisando) {
+            if (!onOff) {
+                locutor("estas en pausa");
+                clearInterval(partida);
+                pausar.textContent = "Continuar";
+            } else {
+                locutor("Reanudamos partida");
+
+                pausar.textContent = "Pausar";
+                partida = setInterval(sacarBolas, timerInterval);
+            }
+
+            onOff = !onOff; //cambiamos el valor de la variable.
         }
+    }
 
-        onOff = !onOff; //cambiamos el valor de la variable.
-    });
-
-    /*Evento que revisa los números que ya han salido. */
-    revisar.addEventListener("click", () => {
-
+    /*Se realiza una pausa del juego y se comienza con la revisión del tablero */
+    const revisandoTablero = () => {
+        pausarJuego();
         if (jugando && onOff) {
+            revisando = true;
             indice = 0;
 
             locutor("Iniciamos revisión");
             revision = setInterval(revisarTablero, timerInterval);
         }
 
-    });
+    }
+
+    /*Pausamos la partida sin reiniciar ninguno de los valores */
+    pausar.addEventListener("click", pausarJuego);
+
+    /*Evento que revisa los números que ya han salido. */
+    revisar.addEventListener("click", revisandoTablero);
 
     /*Finalizamos la partida  */
-    terminar.addEventListener("click", () => {
-        terminarPartida();
-    });
+    terminar.addEventListener("click", terminarPartida);
 });
